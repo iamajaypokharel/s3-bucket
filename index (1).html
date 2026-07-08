@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kessler Instruments — The Kestrel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#100c09;
+    --bg-1:#1a140f;
+    --bg-2:#221a13;
+    --line:#3a2e22;
+    --text-hi:#f2e9db;
+    --text-mid:#c9bba5;
+    --text-low:#8c7f6b;
+    --copper:#c17a4d;
+    --copper-bright:#e2915d;
+    --brass:#a8823c;
+    --display: 'Instrument Serif', serif;
+    --body: 'Inter', sans-serif;
+    --mono: 'IBM Plex Mono', monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg-0);
+    color:var(--text-hi);
+    font-family:var(--body);
+    line-height:1.5;
+    overflow-x:hidden;
+  }
+  a{color:inherit;text-decoration:none;}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 32px;}
+
+  /* subtle grain / vignette */
+  body::before{
+    content:"";
+    position:fixed; inset:0;
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(193,122,77,0.08), transparent 55%),
+      radial-gradient(ellipse at 100% 100%, rgba(168,130,60,0.05), transparent 60%);
+    pointer-events:none;
+    z-index:0;
+  }
+
+  /* NAV */
+  header{
+    position:sticky; top:0; z-index:50;
+    background:rgba(16,12,9,0.85);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  nav{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:20px 32px;
+    max-width:1180px; margin:0 auto;
+  }
+  .logo{
+    display:flex; align-items:center; gap:10px;
+    font-family:var(--mono); font-size:14px; letter-spacing:0.08em;
+    color:var(--text-hi);
+  }
+  .logo-mark{
+    width:22px;height:22px;
+    border:1.5px solid var(--copper);
+    border-radius:50%;
+    position:relative;
+    flex-shrink:0;
+  }
+  .logo-mark::after{
+    content:"";
+    position:absolute; top:50%; left:50%;
+    width:2px;height:8px;
+    background:var(--copper);
+    transform:translate(-50%,-90%) rotate(28deg);
+    transform-origin:bottom center;
+  }
+  .navlinks{display:flex;gap:36px;font-size:14px;color:var(--text-mid);}
+  .navlinks a:hover{color:var(--copper-bright);}
+  .nav-cta{
+    font-family:var(--mono); font-size:12px; letter-spacing:0.05em;
+    padding:9px 18px;
+    border:1px solid var(--copper);
+    border-radius:2px;
+    color:var(--copper-bright);
+    white-space:nowrap;
+  }
+  .nav-cta:hover{background:var(--copper); color:var(--bg-0);}
+  @media(max-width:760px){ .navlinks{display:none;} }
+
+  /* HERO */
+  .hero{
+    position:relative; z-index:1;
+    padding:96px 32px 80px;
+    max-width:1180px; margin:0 auto;
+    display:grid; grid-template-columns:1.15fr 0.85fr; gap:60px;
+    align-items:center;
+  }
+  .eyebrow{
+    font-family:var(--mono); font-size:12px; letter-spacing:0.14em;
+    color:var(--brass); text-transform:uppercase;
+    display:flex; align-items:center; gap:10px; margin-bottom:22px;
+  }
+  .eyebrow::before{content:"";width:26px;height:1px;background:var(--brass);}
+  h1{
+    font-family:var(--display); font-style:italic; font-weight:400;
+    font-size:clamp(42px,5.4vw,74px);
+    line-height:1.04;
+    color:var(--text-hi);
+    margin-bottom:26px;
+    letter-spacing:-0.01em;
+  }
+  h1 em{color:var(--copper-bright); font-style:italic;}
+  .hero p.lede{
+    font-size:17px; color:var(--text-mid); max-width:460px; margin-bottom:34px;
+  }
+  .hero-ctas{display:flex; gap:16px; flex-wrap:wrap; align-items:center;}
+  .btn-primary{
+    font-family:var(--mono); font-size:13px; letter-spacing:0.04em;
+    background:var(--copper); color:#140f0b;
+    padding:14px 26px; border-radius:2px; font-weight:500;
+    transition:background 0.15s ease;
+  }
+  .btn-primary:hover{background:var(--copper-bright);}
+  .btn-ghost{
+    font-family:var(--mono); font-size:13px; color:var(--text-mid);
+    padding:14px 4px; border-bottom:1px solid var(--line);
+  }
+  .btn-ghost:hover{color:var(--text-hi); border-color:var(--text-mid);}
+
+  /* gauge */
+  .gauge-wrap{
+    display:flex; flex-direction:column; align-items:center; gap:18px;
+    padding:34px 20px;
+    border:1px solid var(--line);
+    border-radius:4px;
+    background:linear-gradient(180deg, var(--bg-1), var(--bg-2));
+  }
+  .gauge-label{font-family:var(--mono); font-size:11px; letter-spacing:0.12em; color:var(--text-low); text-transform:uppercase;}
+  svg#gauge{width:220px;height:150px;}
+  .gauge-reading{font-family:var(--mono); font-size:34px; color:var(--copper-bright); letter-spacing:0.02em;}
+  .gauge-reading span{font-size:15px; color:var(--text-low);}
+
+  @media(max-width:900px){
+    .hero{grid-template-columns:1fr; padding-top:60px;}
+  }
+
+  /* SECTION HEADERS */
+  .section{padding:100px 32px; position:relative; z-index:1;}
+  .section-inner{max-width:1180px; margin:0 auto;}
+  .section-head{max-width:560px; margin-bottom:56px;}
+  .section-head .eyebrow{margin-bottom:16px;}
+  .section-head h2{
+    font-family:var(--display); font-style:italic; font-weight:400;
+    font-size:clamp(30px,3.4vw,44px);
+    color:var(--text-hi); line-height:1.08; margin-bottom:16px;
+  }
+  .section-head p{color:var(--text-mid); font-size:15.5px; max-width:480px;}
+  .divider{height:1px; background:var(--line); max-width:1180px; margin:0 auto;}
+
+  /* BLUEPRINT */
+  .blueprint{background:var(--bg-1);}
+  .blueprint-figure{
+    position:relative;
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:40px;
+    background:
+      linear-gradient(var(--line) 1px, transparent 1px) 0 0/40px 40px,
+      linear-gradient(90deg, var(--line) 1px, transparent 1px) 0 0/40px 40px,
+      var(--bg-0);
+    background-blend-mode:overlay, overlay, normal;
+    opacity:1;
+  }
+  .blueprint-figure svg{width:100%; height:auto; display:block;}
+  .bp-label{font-family:var(--mono); font-size:11px; fill:var(--text-mid);}
+  .bp-value{font-family:var(--mono); font-size:11px; fill:var(--copper-bright);}
+  .bp-line{stroke:var(--text-low); stroke-width:1;}
+  .bp-body{stroke:var(--text-mid); stroke-width:1.2; fill:none;}
+  .bp-fill{fill:var(--bg-2);}
+
+  /* SPECS */
+  .specs-grid{
+    display:grid; grid-template-columns:repeat(3,1fr); gap:1px;
+    background:var(--line); border:1px solid var(--line); border-radius:4px; overflow:hidden;
+  }
+  .spec-cell{background:var(--bg-0); padding:28px 26px;}
+  .spec-cell .k{font-family:var(--mono); font-size:11px; letter-spacing:0.08em; color:var(--text-low); text-transform:uppercase; margin-bottom:10px;}
+  .spec-cell .v{font-family:var(--mono); font-size:24px; color:var(--text-hi);}
+  .spec-cell .v small{font-size:13px; color:var(--copper-bright); margin-left:4px;}
+  @media(max-width:760px){ .specs-grid{grid-template-columns:1fr 1fr;} }
+
+  /* TESTIMONIALS */
+  .quotes{display:grid; grid-template-columns:repeat(3,1fr); gap:28px;}
+  .quote-card{
+    border:1px solid var(--line); border-radius:4px; padding:30px 26px;
+    background:var(--bg-1);
+  }
+  .quote-card p{font-size:15px; color:var(--text-mid); margin-bottom:22px; line-height:1.6;}
+  .quote-who{font-family:var(--mono); font-size:12px; color:var(--text-low);}
+  .quote-who strong{color:var(--text-hi); font-weight:500;}
+  @media(max-width:900px){ .quotes{grid-template-columns:1fr;} }
+
+  /* CTA */
+  .cta-section{
+    background:linear-gradient(180deg, var(--bg-1), var(--bg-0));
+    border-top:1px solid var(--line);
+    text-align:center;
+    padding:110px 32px;
+  }
+  .cta-section h2{
+    font-family:var(--display); font-style:italic; font-weight:400;
+    font-size:clamp(34px,4.4vw,56px);
+    margin-bottom:18px;
+  }
+  .cta-section p{color:var(--text-mid); max-width:480px; margin:0 auto 36px;}
+  .price-row{
+    display:flex; align-items:baseline; justify-content:center; gap:8px; margin-bottom:36px;
+    font-family:var(--mono);
+  }
+  .price-row .amt{font-size:32px; color:var(--copper-bright);}
+  .price-row .note{font-size:13px; color:var(--text-low);}
+
+  footer{
+    border-top:1px solid var(--line);
+    padding:44px 32px;
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;
+  }
+  footer .f-left{font-family:var(--mono); font-size:12px; color:var(--text-low);}
+  footer .f-links{display:flex; gap:26px; font-size:13px; color:var(--text-mid);}
+  footer .f-links a:hover{color:var(--copper-bright);}
+
+  /* reveal on scroll */
+  .reveal{opacity:0; transform:translateY(16px); transition:opacity 0.7s ease, transform 0.7s ease;}
+  .reveal.in{opacity:1; transform:translateY(0);}
+
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    .reveal{opacity:1; transform:none; transition:none;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <nav>
+    <div class="logo"><span class="logo-mark"></span>KESSLER INSTRUMENTS</div>
+    <div class="navlinks">
+      <a href="#blueprint">Engineering</a>
+      <a href="#specs">Specs</a>
+      <a href="#reviews">Reviews</a>
+    </div>
+    <a href="#reserve" class="nav-cta">Reserve — $20</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <div>
+    <div class="eyebrow">Home Espresso, Instrument Grade</div>
+    <h1>Nine bars.<br>Zero <em>guesswork.</em></h1>
+    <p class="lede">The Kestrel holds brew pressure within 0.1 bar for the entire extraction — dialed in by engineers who measure everything twice and round nothing.</p>
+    <div class="hero-ctas">
+      <a href="#reserve" class="btn-primary">Reserve the Kestrel</a>
+      <a href="#specs" class="btn-ghost">See full specs →</a>
+    </div>
+  </div>
+  <div class="gauge-wrap">
+    <div class="gauge-label">Live Brew Pressure</div>
+    <svg id="gauge" viewBox="0 0 220 140">
+      <path d="M 20 120 A 90 90 0 0 1 200 120" fill="none" stroke="#3a2e22" stroke-width="10" stroke-linecap="round"/>
+      <path id="gauge-arc" d="M 20 120 A 90 90 0 0 1 200 120" fill="none" stroke="#c17a4d" stroke-width="10" stroke-linecap="round" stroke-dasharray="283" stroke-dashoffset="283"/>
+      <g id="needle" style="transform-origin:110px 120px; transform:rotate(-90deg); transition:transform 1.8s cubic-bezier(.22,1,.36,1);">
+        <line x1="110" y1="120" x2="110" y2="45" stroke="#f2e9db" stroke-width="2"/>
+        <circle cx="110" cy="120" r="5" fill="#f2e9db"/>
+      </g>
+      <text x="20" y="135" font-family="IBM Plex Mono" font-size="9" fill="#8c7f6b">0</text>
+      <text x="195" y="135" font-family="IBM Plex Mono" font-size="9" fill="#8c7f6b">12</text>
+    </svg>
+    <div class="gauge-reading"><span id="gauge-num">0.0</span> <span>BAR</span></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section class="section blueprint" id="blueprint">
+  <div class="section-inner">
+    <div class="section-head reveal">
+      <div class="eyebrow">Cross Section</div>
+      <h2>Built like it's measured, not assembled.</h2>
+      <p>Every Kestrel is hand-checked against tolerances borrowed from lab equipment, not kitchen appliances.</p>
+    </div>
+    <div class="blueprint-figure reveal">
+      <svg viewBox="0 0 900 380" xmlns="http://www.w3.org/2000/svg">
+        <!-- body outline -->
+        <rect x="330" y="60" width="240" height="260" rx="10" class="bp-body"/>
+        <rect class="bp-fill" x="330" y="60" width="240" height="260" rx="10" opacity="0.5"/>
+        <!-- boiler -->
+        <circle cx="450" cy="140" r="42" class="bp-body"/>
+        <!-- group head -->
+        <rect x="415" y="235" width="70" height="30" class="bp-body"/>
+        <rect x="430" y="265" width="40" height="18" class="bp-body"/>
+        <!-- pump box -->
+        <rect x="360" y="270" width="46" height="34" class="bp-body"/>
+        <!-- paddle -->
+        <line x1="570" y1="150" x2="610" y2="150" class="bp-line"/>
+        <circle cx="614" cy="150" r="6" class="bp-body"/>
+
+        <!-- callout: boiler -->
+        <line x1="450" y1="98" x2="450" y2="40" class="bp-line"/>
+        <line x1="450" y1="40" x2="140" y2="40" class="bp-line"/>
+        <text x="60" y="36" class="bp-label">DUAL BOILER</text>
+        <text x="60" y="52" class="bp-value">1.8L COPPER</text>
+
+        <!-- callout: PID -->
+        <line x1="492" y1="140" x2="700" y2="80" class="bp-line"/>
+        <text x="705" y="76" class="bp-label">PID TEMP CONTROL</text>
+        <text x="705" y="92" class="bp-value">±0.5°F</text>
+
+        <!-- callout: pump -->
+        <line x1="360" y1="287" x2="130" y2="287" class="bp-line"/>
+        <text x="60" y="283" class="bp-label">ROTARY PUMP</text>
+        <text x="60" y="299" class="bp-value">9 BAR NOMINAL</text>
+
+        <!-- callout: group head -->
+        <line x1="450" y1="293" x2="450" y2="345" class="bp-line"/>
+        <line x1="450" y1="345" x2="300" y2="345" class="bp-line"/>
+        <text x="180" y="349" class="bp-label">GROUP HEAD</text>
+        <text x="180" y="365" class="bp-value">58MM COMMERCIAL</text>
+
+        <!-- callout: paddle -->
+        <line x1="614" y1="150" x2="770" y2="180" class="bp-line"/>
+        <text x="775" y="176" class="bp-label">FLOW PADDLE</text>
+        <text x="775" y="192" class="bp-value">MANUAL PRE-INFUSE</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="specs">
+  <div class="section-inner">
+    <div class="section-head reveal">
+      <div class="eyebrow">Spec Sheet</div>
+      <h2>The numbers, in full.</h2>
+      <p>No rounding, no marketing math — this is what ships in the crate.</p>
+    </div>
+    <div class="specs-grid reveal">
+      <div class="spec-cell"><div class="k">Boiler Capacity</div><div class="v">1.8 <small>L</small></div></div>
+      <div class="spec-cell"><div class="k">Pressure Range</div><div class="v">1–12 <small>BAR</small></div></div>
+      <div class="spec-cell"><div class="k">Temp Stability</div><div class="v">±0.5 <small>°F</small></div></div>
+      <div class="spec-cell"><div class="k">Warm-Up Time</div><div class="v">8 <small>MIN</small></div></div>
+      <div class="spec-cell"><div class="k">Group Head</div><div class="v">58 <small>MM</small></div></div>
+      <div class="spec-cell"><div class="k">Machine Weight</div><div class="v">42 <small>LB</small></div></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section class="section" id="reviews">
+  <div class="section-inner">
+    <div class="section-head reveal">
+      <div class="eyebrow">From The Bench</div>
+      <h2>Baristas notice the 0.1 bar.</h2>
+    </div>
+    <div class="quotes reveal">
+      <div class="quote-card">
+        <p>Pulled a dozen shots back to back and the pressure trace never moved. That's the part that sold me, not the looks.</p>
+        <div class="quote-who"><strong>M. Alaoui</strong> — home barista, 6 yrs</div>
+      </div>
+      <div class="quote-card">
+        <p>I run a two-seat espresso bar out of my garage on weekends. The Kestrel is the first machine that hasn't drifted after a month of daily use.</p>
+        <div class="quote-who"><strong>R. Voss</strong> — Voss Coffee Co.</div>
+      </div>
+      <div class="quote-card">
+        <p>The flow paddle alone rewired how I think about pre-infusion. It's a tool, not an appliance.</p>
+        <div class="quote-who"><strong>T. Ibarra</strong> — competitive barista</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-section" id="reserve">
+  <div class="eyebrow" style="justify-content:center;">Limited First Run</div>
+  <h2>Reserve your Kestrel.</h2>
+  <p>A refundable $20 deposit holds your place in the Q1 2027 production run. Full price due at ship.</p>
+  <div class="price-row"><span class="amt">$3,400</span><span class="note">/ unit — deposit $20</span></div>
+  <a href="#" class="btn-primary" style="padding:16px 32px;">Reserve Now</a>
+</section>
+
+<footer>
+  <div class="f-left">© 2026 KESSLER INSTRUMENTS — PORTLAND, OR</div>
+  <div class="f-links">
+    <a href="#blueprint">Engineering</a>
+    <a href="#specs">Specs</a>
+    <a href="#reviews">Reviews</a>
+    <a href="#reserve">Reserve</a>
+  </div>
+</footer>
+
+<script>
+  // gauge animation on load
+  window.addEventListener('load', () => {
+    const needle = document.getElementById('needle');
+    const arc = document.getElementById('gauge-arc');
+    const num = document.getElementById('gauge-num');
+    setTimeout(() => {
+      needle.style.transform = 'rotate(58deg)'; // roughly maps to 9/12 bar
+      arc.style.transition = 'stroke-dashoffset 1.8s cubic-bezier(.22,1,.36,1)';
+      arc.style.strokeDashoffset = String(283 - (283 * 0.75));
+      let start = null;
+      const duration = 1800;
+      function step(ts){
+        if(!start) start = ts;
+        const p = Math.min((ts - start) / duration, 1);
+        num.textContent = (p * 9.0).toFixed(1);
+        if(p < 1) requestAnimationFrame(step);
+        else num.textContent = "9.0";
+      }
+      requestAnimationFrame(step);
+    }, 300);
+  });
+
+  // scroll reveal
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if(e.isIntersecting){
+        e.target.classList.add('in');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>
